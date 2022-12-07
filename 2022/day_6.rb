@@ -6,9 +6,10 @@ characters = { input[left] => left }
 target_length = 14
 
 while right < input.length do
-  found = characters[input[right]]
-  if found.nil? && right - left < target_length
-    characters[input[right]] = right
+  char = input[right]
+
+  if characters[char].nil? && right - left < target_length
+    characters[char] = right
     right += 1
     break if characters.keys.length == target_length
   else
@@ -17,4 +18,4 @@ while right < input.length do
   end
 end
 
-puts characters.values.last + 1
+puts right
