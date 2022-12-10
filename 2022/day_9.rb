@@ -99,7 +99,6 @@ end
 rope = Rope.new(2)
 walk(input, rope)
 puts [*rope.tail_history, rope.tail].uniq { |c| [c.x, c.y] }.count
-# 6563
 
 rope = Rope.new(10)
 walk(input, rope)
