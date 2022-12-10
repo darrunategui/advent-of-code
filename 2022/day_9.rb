@@ -14,38 +14,51 @@ class Coordinate
     Coordinate.new(x + MOVES[direction][0], y + MOVES[direction][1])
   end
 
-  # def ==(other)
-  #   self.x == other.x && self.y == other.y
-  # end
-
   def to_s
     "[#{x}, #{y}]" 
   end
 end
 
 class Rope
-  attr_reader :head, :tail, :head_history, :tail_history
+  attr_reader :head, :tail, :tail_history
   def initialize
-    @start = Coordinate.new(0, 0)
     @head = Coordinate.new(0, 0)
     @tail = Coordinate.new(0, 0)
-    @head_history = []
     @tail_history = []
   end
 
   def step(direction)
-    @head_history << @head
     @head = @head.move(direction)
-    if head_tail_too_far?
+    if knots_too_far?
       @tail_history << @tail
-      @tail = @head_history.last 
+      @tail = slack_knot(@head, @tail)
     end
   end
 
   private
 
-  def head_tail_too_far?
+  def knots_too_far?
     (@head.x - @tail.x).abs > 1 || (@head.y - @tail.y).abs > 1
+  end
+
+  def slack_knot(ahead, behind)
+    diff = [ahead.x - behind.x, ahead.y - behind.y]
+    case diff
+    when [2, 0] then behind.move('R')
+    when [-2, 0] then behind.move('L')
+    when [0, 2] then behind.move('U')
+    when [0, -2] then behind.move('D')
+    else
+      if ahead.x > behind.x && ahead.y > behind.y
+        behind.move('R').move('U')
+      elsif ahead.x > behind.x && ahead.y < behind.y
+        behind.move('R').move('D')
+      elsif ahead.x < behind.x && ahead.y > behind.y
+        behind.move('L').move('U')
+      else
+        behind.move('L').move('D')
+      end
+    end
   end
 end
 
@@ -58,3 +71,4 @@ input.each do |entry|
 end
 
 puts [*rope.tail_history, rope.tail].uniq { |c| [c.x, c.y] }.count
+# 6563
