@@ -8,6 +8,7 @@ module InputReader
     # day_1.rb
     # day_2.rb     
     path = "inputs/#{File.basename($0).gsub('.rb', '.txt')}"
-    File.read(path)
+    File.read(path).
+      chop # remove the last \n (if present)
   end
 end
