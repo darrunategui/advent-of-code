@@ -34,28 +34,31 @@ class Map
         (heights[c].ord - heights[reference].ord <= 1)
       }
   end
+
+  def find_path
+    navigator = heights.keys.to_h { |c| [c, 0] }
+    queue = [start]
+    while (reference = queue.shift) != nil
+      next_steps = valid_steps(reference)
+      next_steps.each do |step|
+        if navigator[step] == 0 || navigator[step] > navigator[reference]+1
+          navigator[step] = navigator[reference] + 1
+          queue << step
+        end
+      end
+    end
+    navigator[self.end] == 0 ? nil : navigator
+  end
 end
 
 map = Map.new(InputReader.read)
-navigator = map.heights.keys.to_h { |c| [c, 0] }
 
-shortest_path = nil
-queue = [map.start]
-while (reference = queue.shift) != nil
-  next_steps = map.valid_steps(reference)
-  next_steps.each do |step|
-    if navigator[step] == 0 || navigator[step] > navigator[reference]+1
-      navigator[step] = navigator[reference] + 1
-      queue << step
-      shortest_path = navigator[step] if step == map.end
-    end
-  end
+# part 1
+puts map.find_path[map.end]
 
-  break if !shortest_path.nil?
-end
-
-puts shortest_path
-#puts navigator.
-#  values.map { |p| '%02d' % p }.each_slice(8).
-#  map { |s| s.join(' ') }.
-#  join("\n")
+# part 2
+starting_points = map.heights.filter { |c, v| v == 'a' }.keys
+puts starting_points.filter_map { |c|
+  map.start = c
+  map.find_path
+}.map { |path| path[map.end] }.sort.first
