@@ -23,9 +23,7 @@ def rock_paths(input)
   }.reduce(:|)
 end
 
-def pour(taken_coords, sand)
-  max_y = taken_coords.map { |c| c.y }.max
-
+def pour(taken_coords, sand, max_y)
   loop do
     break if sand.y == max_y
     
@@ -47,16 +45,18 @@ end
 def simulate(rocks)
   sand_source = Coordinate.new(500, 0)
 
+  max_y = rocks.map { |c| c.y }.max
   rock_and_sand = rocks.dup
+  count = 0
   loop do
-    landing_spot = pour(rock_and_sand, sand_source)
+    count = count + 1
+    landing_spot = pour(rock_and_sand, sand_source, max_y)
     break if landing_spot.nil?
 
     rock_and_sand.add(landing_spot)
     break if landing_spot == sand_source
   end 
-
-  (rock_and_sand - rocks).length
+  count
 end
 
 # part 1
