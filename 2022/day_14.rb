@@ -44,35 +44,27 @@ def pour(taken_coords, sand)
   sand.y == max_y ? nil : sand
 end
 
-sand_source = Coordinate.new(500, 0).freeze
-rocks = rock_paths(InputReader.read).freeze
+def simulate(rocks)
+  sand_source = Coordinate.new(500, 0)
+
+  rock_and_sand = rocks.dup
+  loop do
+    landing_spot = pour(rock_and_sand, sand_source)
+    break if landing_spot.nil?
+
+    rock_and_sand.add(landing_spot)
+    break if landing_spot == sand_source
+  end 
+
+  (rock_and_sand - rocks).length
+end
 
 # part 1
-rock_and_sand = rocks.dup
-loop do
-  landing_spot = pour(rock_and_sand, sand_source)
-  break if landing_spot.nil?
-
-  rock_and_sand.add(landing_spot)
-end 
-
-puts (rock_and_sand - rocks).length
-
+part_1_rocks = rock_paths(InputReader.read).freeze
+p simulate(part_1_rocks)
 
 # part 2
-rock_and_sand = rocks.dup
-floor_y = rocks.map { |c| c.y }.max + 2
+floor_y = part_1_rocks.map { |c| c.y }.max + 2
 floor_input = "#{500 - floor_y - 2}, #{floor_y} -> #{500 + floor_y + 2}, #{floor_y}"
-rock_and_sand = rock_and_sand | rock_paths(floor_input)
-
-count = 0
-loop do
-  count = count + 1
-  landing_spot = pour(rock_and_sand, sand_source)
-  break if landing_spot.nil?
-
-  rock_and_sand.add(landing_spot)
-  break if landing_spot == sand_source
-end 
- p count
-
+part_2_rocks = part_1_rocks | rock_paths(floor_input)
+p simulate(part_2_rocks)
