@@ -26,4 +26,8 @@ class Coordinate
   def to_s
     "[#{x}, #{y}]" 
   end
+
+  def inspect
+    to_s
+  end
 end
