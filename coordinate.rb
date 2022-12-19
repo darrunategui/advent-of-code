@@ -30,4 +30,8 @@ class Coordinate
   def inspect
     to_s
   end
+
+  def self.distance_between(a, b)
+    (a.x - b.x).abs + (a.y - b.y).abs
+  end
 end
