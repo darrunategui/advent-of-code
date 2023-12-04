@@ -54,17 +54,18 @@ class Schematic
   end
 
   def part_numbers
-    part_num_coords.map { |range|
-      x = range.first.x
-      (range.first.y..range.last.y).map { |y| @grid[x][y] }.join.to_i
-    }
+    part_num_coords.map { |range| range_to_num(range) }
   end
 
   def gear_ratios
-    gear_ratio_num_coords.map { |range|
-      x = range.first.x
-      (range.first.y..range.last.y).map { |y| @grid[x][y] }.join.to_i
-    }
+    gear_ratio_num_coords.map { |range| range_to_num(range)}
+  end
+
+  private
+  
+  def range_to_num(range)
+    x = range.first.x
+    (range.first.y..range.last.y).map { |y| @grid[x][y] }.join.to_i
   end
 end
 
