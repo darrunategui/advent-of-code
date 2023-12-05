@@ -36,19 +36,20 @@ scratch_cards = lines.map { |l| ScratchCard.new(l) }.to_h { |s| [s.number, s] }
 p scratch_cards.values.sum { |s| s.points }
 
 
-def recurse(scratch_card, all_cards)
-  traversed = [scratch_card]
+# part 2
+def traverse(scratch_cards, all_cards)
+  to_check = scratch_cards
+  traversed = []
 
-  scratch_card.won_scratch_card_nums.each { |n|
-    traversed.push *recurse(all_cards[n], all_cards)
-  }
+  while to_check.any?
+    next_up = to_check.pop
+    traversed << next_up
+    to_check.push *next_up.won_scratch_card_nums.map { |n| all_cards[n] }
+  end
 
   traversed
 end
 
-# part 2
-p scratch_cards.values
-  .map { |s| recurse(s, scratch_cards) }
-  .flatten
+p traverse(scratch_cards.values, scratch_cards)
   .map { |s| s.number }
   .length
