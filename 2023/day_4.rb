@@ -2,7 +2,7 @@ require '../input_reader'
 lines = InputReader.read.split("\n")
 
 class ScratchCard
-  attr_reader :number, :winning_nums, :guessed_nums
+  attr_reader :number
   def initialize(line)
     @number = line.split(":").first.match(/\d+/).to_s.to_i
     @winning_nums = Set.new line.split(":").last.split("|").first.scan(/\d+/).map { |d| d.to_s.to_i }
@@ -14,18 +14,15 @@ class ScratchCard
   end
 
   def winners
-    @winning_nums & @guessed_nums
+    @winners ||= @winning_nums & @guessed_nums
   end
 
   def won_scratch_card_nums
-    return [] if !winner? 
-    (0...winners.length).map { |n| @number + n + 1 }
+    @won_scratch_card_nums ||= (0...winners.length).map { |n| @number + n + 1 }
   end
 
   def points
-    return 0 if !winner?
-    return 1 if winners.length == 1
-    (1...winners.length).reduce(1) { |acc, _| acc *= 2 }
+    @points ||= (0...winners.length).reduce(0) { |acc, i| i == 0 ? 1 : acc*2 }
   end
 end
 
@@ -40,15 +37,15 @@ class ScratchCardChecker
 
   def number_of_scratchcards
     to_check = @cards_hash.values
-    traversed = []
+    count = 0
 
     while to_check.any?
       next_up = to_check.pop
-      traversed << next_up
+      count += 1
       to_check.push *next_up.won_scratch_card_nums.map { |n| @cards_hash[n] }
     end
 
-    traversed.map { |s| s.number }.length
+    count
   end
 end
 
