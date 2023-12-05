@@ -27,29 +27,36 @@ class ScratchCard
     return 1 if winners.length == 1
     (1...winners.length).reduce(1) { |acc, _| acc *= 2 }
   end
-
 end
 
-scratch_cards = lines.map { |l| ScratchCard.new(l) }.to_h { |s| [s.number, s] }
-
-# part 1
-p scratch_cards.values.sum { |s| s.points }
-
-
-# part 2
-def traverse(scratch_cards, all_cards)
-  to_check = scratch_cards
-  traversed = []
-
-  while to_check.any?
-    next_up = to_check.pop
-    traversed << next_up
-    to_check.push *next_up.won_scratch_card_nums.map { |n| all_cards[n] }
+class ScratchCardChecker
+  def initialize(scratch_cards)
+    @cards_hash = scratch_cards.to_h { |s| [s.number, s] }
   end
 
-  traversed
+  def points
+    @cards_hash.values.sum { |s| s.points }
+  end
+
+  def number_of_scratchcards
+    to_check = @cards_hash.values
+    traversed = []
+
+    while to_check.any?
+      next_up = to_check.pop
+      traversed << next_up
+      to_check.push *next_up.won_scratch_card_nums.map { |n| @cards_hash[n] }
+    end
+
+    traversed.map { |s| s.number }.length
+  end
 end
 
-p traverse(scratch_cards.values, scratch_cards)
-  .map { |s| s.number }
-  .length
+scratch_cards = lines.map { |l| ScratchCard.new(l) }
+checker = ScratchCardChecker.new(scratch_cards)
+
+# part 1 22488
+p checker.points
+
+# part 2 7013204
+p checker.number_of_scratchcards
