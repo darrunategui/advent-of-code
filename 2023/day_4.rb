@@ -9,10 +9,6 @@ class ScratchCard
     @guessed_nums = Set.new line.split(":").last.split("|").last.scan(/\d+/).map { |d| d.to_s.to_i }
   end
 
-  def winner?
-    winners.any?
-  end
-
   def winners
     @winners ||= @winning_nums & @guessed_nums
   end
