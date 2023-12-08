@@ -3,56 +3,60 @@ require '../input_reader'
 
 class Hand
   include Comparable
-  attr_reader :rank, :cards
-  def initialize(cards)
+
+  attr_reader :cards
+  def initialize(cards, wildcard = false)
     @cards = cards
-
-    sorted_cards = cards.chars.sort.join
-
-    @rank = if cards.match?(/(.)\1{4}/)
-      7
-    elsif sorted_cards.match?(/(.)\1{3}/)
-      6
-    elsif sorted_cards.match?(/((.)\2(.)\3{2}|(.)\4{2}(.)\5)/)
-      5
-    elsif sorted_cards.match?(/(.)\1{2}/)
-      4
-    elsif sorted_cards.chars.each_cons(2).count { |c| c.first == c.last } == 2
-      3
-    elsif sorted_cards.match?(/(.)\1/)
-      2
-    else
-      1
-    end
+    @wildcard = wildcard
+    @card_values = {
+      '2' => 0,
+      '3' => 1,
+      '4' => 2,
+      '5' => 3,
+      '6' => 4,
+      '7' => 5,
+      '8' => 6,
+      '9' => 7,
+      'T' => 8,
+      'J' => wildcard ? -1 : 9,
+      'Q' => 10,
+      'K' => 11,
+      'A' => 12,
+    }
   end
 
-  CARD_VALUES = {
-    '2' => 0,
-    '3' => 1,
-    '4' => 2,
-    '5' => 3,
-    '6' => 4,
-    '7' => 5,
-    '8' => 6,
-    '9' => 7,
-    'T' => 8,
-    'J' => 9,
-    'Q' => 10,
-    'K' => 11,
-    'A' => 12,
-  }
+  def rank
+    grouped = @cards.chars.reduce({}) { |acc, c|
+      acc[c] = acc.fetch(c, 0) + 1
+      acc
+    }.sort_by { |char, count| count }.reverse.to_h
+
+    if @wildcard
+      j = grouped.delete('J')
+      if !j.nil?
+        if grouped.empty?
+          grouped['J'] = j
+        else
+          greatest_char = grouped.first.first
+          grouped[greatest_char] = grouped[greatest_char] + j
+        end
+      end
+    end
+
+    result = grouped.values
+  end
 
   def <=>(other)
-    if rank < other.rank
+    if rank.to_s < other.rank.to_s
       return -1
-    elsif rank > other.rank
+    elsif rank.to_s > other.rank.to_s
       return 1
     else
       pairs = cards.chars.zip(other.cards.chars)
       pairs.each { |t, o|
-        if CARD_VALUES[t] < CARD_VALUES[o]
+        if @card_values[t] < @card_values[o]
           return -1
-        elsif CARD_VALUES[t] > CARD_VALUES[o]
+        elsif @card_values[t] > @card_values[o]
           return 1
         end
       }
@@ -60,14 +64,27 @@ class Hand
   end
 end
 
-hands = InputReader.read.split("\n").map { |l|
+
+inputs = InputReader.read.split("\n")
+
+# part 1 249390788
+hands = inputs.map { |l|
   h = l.split(' ')
   [Hand.new(h[0]), h[1].to_i]
 }
-
 p hands.sort { |a, b| a[0] <=> b[0] }
   .map { |h| h.last }
   .to_enum.with_index(1)
   .map { |bet, index| bet * index }
   .sum
 
+  # part 2 248750248
+hands = inputs.map { |l|
+  h = l.split(' ')
+  [Hand.new(h[0], true), h[1].to_i]
+}
+p hands.sort { |a, b| a[0] <=> b[0] }
+  .map { |h| h.last }
+  .to_enum.with_index(1)
+  .map { |bet, index| bet * index }
+  .sum
