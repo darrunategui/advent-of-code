@@ -34,6 +34,6 @@ p seeds.map { |s| reader.location(s) }.min
 
 # part 2
 p seeds.each_slice(2)
-  .map { |seed, range| seed.upto(seed+range-1).to_a }
-  .flatten
-  .map { |s| reader.location(s) }.min
+  .map { |seed, range|
+    seed.upto(seed+range-1).each_slice(100000).map { |slice| slice.map { |s| reader.location(s) }.min }.min
+  }.min
